@@ -47,7 +47,7 @@ router.post(
           .json({ errors: [{ msg: ' Invalid Crendentials ' }] });
       }
 
-      const isMatch = await bcrypt.compare(password, user.password);
+      const isMatch = await bcrypt.compare(password.toString(), user.password);
 
       if (!isMatch) {
         return res
@@ -60,8 +60,6 @@ router.post(
           id: user.id
         }
       };
-
-      // return res.json({ payload });
 
       jwt.sign(
         payload,
