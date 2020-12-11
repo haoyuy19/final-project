@@ -14,7 +14,29 @@ const RecruiterProfileSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true
-  }
+  },
+  jobs: [
+    {
+      jobtitle: {
+        type: String,
+        required: true
+      },
+      summary: {
+        type: String,
+        required: true
+      },
+      responsibilites: {
+        type: String
+      },
+      skills: {
+        type: [String],
+        required: true
+      },
+      salary: {
+        type: String
+      }
+    }
+  ]
 });
 
 module.exports = RecruiterProfile = mongoose.model(

@@ -1,42 +1,35 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../../middleware/auth');
+const authRecruiter = require('../../middleware/authRecruiter');
 const { check, validationResult } = require('express-validator');
 
-const Profile = require('../../models/Profile');
-const User = require('../../models/User');
+const Job = require('../../models/Job');
+const Recruiter = require('../../models/Recruiter');
 
-// @route    GET api/profile/me
-// @desc     Get current users profile
-// @access   Private
-router.get('/me', auth, async (req, res) => {
+router.get('/iposted', authRecruiter, async (req, res) => {
   try {
-    const profile = await Profile.findOne({
-      user: req.user.id
-    }).populate('user', ['name', 'email']);
+    const job = await Job.findOne({
+      recruiter: req.recruiter.id
+    }).populate('recruiter', ['name', 'email', 'company']);
 
-    if (!profile) {
-      return res.status(400).json({ msg: 'There is no profile for this user' });
+    if (!job) {
+      return res.status(400).json({ msg: 'No job has been post yet' });
     }
-
-    res.json(profile);
+    res.json(job);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server Error');
   }
 });
 
-// @route    POST api/profile
-// @desc     Create or update user profile
-// @access   Private
-
 router.post(
   '/',
   [
-    auth,
+    authRecruiter,
     [
-      check('location', 'Location is required').not().isEmpty(),
-      check('skills', 'Skills is required').not().isEmpty()
+      check('jobtitle', 'Jobtitle is required').not().isEmpty(),
+      check('skills', 'Skills is required').not().isEmpty(),
+      check('summary', 'Summary is required').not().isEmpty()
     ]
   ],
   async (req, res) => {
@@ -45,37 +38,37 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { location, bio, skills, githubusername } = req.body;
+    const { jobtitle, summary, skills, responsibilites, salary } = req.body;
 
-    const profileFields = {};
-    profileFields.user = req.user.id;
-    if (location) profileFields.location = location;
-    if (bio) profileFields.bio = bio;
-    if (githubusername) profileFields.githubusername = githubusername;
+    const jdFields = {};
+    jdFields.recruiter = req.recruiter.id;
+    if (jobtitle) jdFields.jobtitle = jobtitle;
+    if (summary) jdFields.summary = summary;
+    if (responsibilites) jdFields.responsibilites = responsibilites;
+    if (salary) jdFields.salary = salary;
     if (skills) {
-      profileFields.skills = skills.split(',').map(skill => skill.trim());
+      jdFields.skills = skills.split(',').map(skill => skill.trim());
     }
 
     try {
-      // Using upsert option (creates new doc if no match is found):
-      let profile = await Profile.findOne({ user: req.user.id });
+      let job = await Job.findOne({ recruiter: req.recruiter.id });
 
-      if (profile) {
+      if (job) {
         // update
-        profile = await Profile.findOneAndUpdate(
-          { user: req.user.id },
-          { $set: profileFields },
+        job = await Job.findOneAndUpdate(
+          { recruiter: req.recruiter.id },
+          { $set: jdFields },
           { new: true }
         );
 
-        return res.json(profile);
+        return res.json(job);
       }
 
-      // Save the profile
-      profile = new Profile(profileFields);
+      // Save the job
+      job = new Job(jdFields);
 
-      await profile.save();
-      return res.json(profile);
+      await job.save();
+      return res.json(job);
     } catch (err) {
       console.error(err.message);
       res.status(500).send('Server Error');
@@ -135,7 +128,7 @@ router.get('/user/:user_id', async (req, res) => {
 // @desc    Delete and user
 // @access  Private
 
-router.delete('/', auth, async (req, res) => {
+router.delete('/', authRecruiter, async (req, res) => {
   try {
     // remove profile
     await Profile.findOneAndRemove({ user: req.user.id });
@@ -155,7 +148,7 @@ router.delete('/', auth, async (req, res) => {
 router.put(
   '/experience',
   [
-    auth,
+    authRecruiter,
     [
       check('title', 'Title is required').not().isEmpty(),
       check('company', 'Company is required').not().isEmpty(),
@@ -189,6 +182,7 @@ router.put(
 
     try {
       const profile = await Profile.findOne({ user: req.user.id });
+
       profile.experience.unshift(newExp);
       await profile.save();
 
@@ -203,7 +197,7 @@ router.put(
 // @route   DELETE api/profile/experience/:exp_id
 // @desc    Delete experience from profile
 // @access  Private
-router.delete('/experience/:exp_id', auth, async (req, res) => {
+router.delete('/experience/:exp_id', authRecruiter, async (req, res) => {
   try {
     const profile = await Profile.findOne({ user: req.user.id });
 
