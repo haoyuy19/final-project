@@ -16,7 +16,7 @@ app.use('/api/users', require('./routes/api/users'));
 app.use('/api/auth', require('./routes/api/auth'));
 app.use('/api/profile', require('./routes/api/profile'));
 app.use('/api/viewJobs', require('./routes/api/viewJobs'));
-
+app.use('/api/rank', require('./routes/api/rank'));
 app.use('/api/recruiters', require('./routes/api/recruiters'));
 app.use('/api/authRecruiters', require('./routes/api/authRecruiters'));
 app.use('/api/recruiterProfile', require('./routes/api/recruiterProfile'));
