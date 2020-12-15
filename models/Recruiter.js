@@ -13,6 +13,10 @@ const RecruiterSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
+  },
+  voted: {
+    type: Boolean,
+    default: false
   }
 });
 

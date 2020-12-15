@@ -57,7 +57,7 @@ router.post(
     }
 
     try {
-      // Using upsert option (creates new doc if no match is found):
+      // creates new profile if no match is found):
       let profile = await Profile.findOne({ user: req.user.id });
 
       if (profile) {

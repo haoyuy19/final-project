@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../../middleware/auth');
+const authRecruiter = require('../../middleware/authRecruiter');
 const { check, validationResult } = require('express-validator');
 
 const rankModel = require('../../models/Rank');
-const User = require('../../models/User');
+const Recruiter = require('../../models/Recruiter');
 
-router.get('/', auth, (req, res) => {
+router.get('/', authRecruiter, (req, res) => {
   rankModel
     .find()
     .exec()
@@ -20,7 +20,7 @@ router.get('/', auth, (req, res) => {
     );
 });
 
-router.get('/', auth, async (req, res) => {
+router.get('/', authRecruiter, async (req, res) => {
   try {
     const ranks = await Rank.find().populate('company', ['count']);
     res.json(ranks);
@@ -30,21 +30,21 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-router.put('/', auth, async (req, res) => {
+router.put('/', authRecruiter, async (req, res) => {
   try {
     var body = req.body;
     var comName = body.company;
-    let cur = await User.findOne({ _id: req.user.id });
+    let cur = await Recruiter.findOne({ _id: req.recruiter.id });
     // console.log(cur.voted);
 
     if (!cur.voted) {
-      cur = await User.findOneAndUpdate(
-        { _id: req.user.id },
+      cur = await Recruiter.findOneAndUpdate(
+        { _id: req.recruiter.id },
         { voted: true },
         { new: true }
       );
-      user = new User(cur);
-      await user.save();
+      recruiter = new Recruiter(cur);
+      await recruiter.save();
       // console.log(cur);
       var comEntry = await rankModel.findOne({ company: comName });
       if (comEntry != null) {
