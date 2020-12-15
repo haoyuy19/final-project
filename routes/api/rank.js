@@ -20,7 +20,7 @@ router.get('/', auth, (req, res) => {
     );
 });
 
-router.get('/', auth, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const ranks = await Rank.find().populate('company', ['count']);
     res.json(ranks);
