@@ -6,7 +6,7 @@ const { check, validationResult } = require('express-validator');
 const rankModel = require('../../models/Rank');
 const User = require('../../models/User');
 
-router.get('/', auth, (req, res) => {
+router.get('/', (req, res) => {
   rankModel
     .find()
     .exec()
