@@ -58,7 +58,7 @@ router.put('/', auth, async (req, res) => {
         return res.status(200).send('Voted successfully');
       }
     } else {
-      res.status(400).send('You have voted.');
+      res.status(200).send('You have voted.');
     }
   } catch (err) {
     console.error(err.message);
